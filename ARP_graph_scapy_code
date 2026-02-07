@@ -1,0 +1,19 @@
+from scapy.all import *
+import matplotlib.pyplot as plt
+pkts = rdpcap("graph.pcapng")
+start = int(pkts[0].time)
+end   = int(pkts[-1].time)
+time_range = list(range(end - start + 1))
+arp_count = [0]*(len(time_range))
+for p in pkts:
+    if p.haslayer(ARP):
+        sec = int(p.time) - start
+        arp_count[sec] += 1
+plt.figure()
+plt.plot(time_range, arp_count)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Packets/sec")
+plt.title("ARP Traffic")
+plt.grid()
+plt.savefig("arp_graph.png")
+plt.show()
