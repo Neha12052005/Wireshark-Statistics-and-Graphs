@@ -1,0 +1,21 @@
+from scapy.all import *
+import matplotlib.pyplot as plt
+from collections import defaultdict
+pkts = rdpcap("graph.pcapng")
+start = pkts[0].time
+udp_count = defaultdict(int
+# Count UDP packets per second
+for p in pkts:
+    if p.haslayer(UDP):
+        sec = int(p.time - start)
+        udp_count[sec] += 1
+x = sorted(udp_count.keys())
+y = [udp_count[i] for i in x]
+plt.figure()
+plt.plot(x, y)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Packets/sec")
+plt.title("UDP Traffic")
+plt.grid()
+plt.savefig("udp_graph.png")
+plt.show()
