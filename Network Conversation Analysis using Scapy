@@ -1,0 +1,44 @@
+
+from scapy.all import *
+from collections import defaultdict
+pkts = rdpcap("graph.pcapng")
+bytes_dict = defaultdict(int)
+packet_dict = defaultdict(int)
+time_dict = defaultdict(list)
+protocol_dict = defaultdict(lambda: defaultdict(int))
+for p in pkts:
+    if p.haslayer(IP):
+        src = p[IP].src
+        dst = p[IP].dst
+        pair = tuple(sorted([src, dst]))   # unique pair
+        size = len(p)
+        # total bytes
+        bytes_dict[pair] += size
+        # packet count
+        packet_dict[pair] += 1
+        # timestamps
+        time_dict[pair].append(p.time)
+        # protocol
+        if p.haslayer(TCP):
+            protocol_dict[pair]["TCP"] += 1
+        elif p.haslayer(UDP):
+            protocol_dict[pair]["UDP"] += 1
+        else:
+            protocol_dict[pair]["OTHER"] += 1
+#  pair with maximum bytes
+max_pair = max(bytes_dict, key=bytes_dict.get)
+print("\n===== Conversation Analysis =====\n")
+print("Pair with maximum bytes:", max_pair)
+print("Bytes transferred:", bytes_dict[max_pair])
+print("\n===== Per Pair Statistics =====")
+for pair in packet_dict:
+    times = sorted(time_dict[pair])
+    if len(times) > 1:
+        diffs = [times[i+1] - times[i] for i in range(len(times)-1)]
+        avg_time = sum(diffs) / len(diffs)
+    else:
+        avg_time = 0
+    print("\nPair:", pair)
+    print("Total packets:", packet_dict[pair])
+    print("Average inter-packet time:", round(avg_time, 6), "seconds")
+    print("Protocol counts:", dict(protocol_dict[pair]))
