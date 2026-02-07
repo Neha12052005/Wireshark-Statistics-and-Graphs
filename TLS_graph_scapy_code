@@ -1,0 +1,21 @@
+from scapy.all import *
+import matplotlib.pyplot as plt
+pkts = rdpcap("graph.pcapng")
+start = int(pkts[0].time)
+end   = int(pkts[-1].time)
+time_range = list(range(end - start + 1))
+tls_count = [0]*(len(time_range))
+for p in pkts:
+    # TLS runs over TCP port 443 (HTTPS)
+    if p.haslayer(TCP):
+        if p[TCP].sport == 443 or p[TCP].dport == 443:
+            sec = int(p.time) - start
+            tls_count[sec] += 1
+plt.figure()
+plt.plot(time_range, tls_count)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Packets/sec")
+plt.title("TLS / HTTPS Traffic")
+plt.grid()
+plt.savefig("tls_graph.png")
+plt.show()
