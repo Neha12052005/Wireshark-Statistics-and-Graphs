@@ -1,0 +1,19 @@
+from scapy.all import *
+import matplotlib.pyplot as plt
+pkts = rdpcap("graph.pcapng")
+start = int(pkts[0].time)
+end   = int(pkts[-1].time)
+time_range = list(range(end - start + 1))
+total_count = [0]*(len(time_range))
+# Count ALL packets per second
+for p in pkts:
+    sec = int(p.time) - start
+    total_count[sec] += 1
+plt.figure()
+plt.plot(time_range, total_count)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Packets/sec")
+plt.title("Total Network Traffic (All Packets)")
+plt.grid()
+plt.savefig("total_graph.png")
+plt.show()
