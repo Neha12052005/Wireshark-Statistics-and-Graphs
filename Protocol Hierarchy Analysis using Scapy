@@ -1,0 +1,25 @@
+from scapy.all import *
+pkts = rdpcap("graph.pcapng")
+total_packets = len(pkts)
+total_bytes = 0
+header_bytes = 0
+for p in pkts:
+    total_bytes += len(p)
+    # Ethernet header
+    if p.haslayer(Ether):
+        header_bytes += 14
+    # IP header
+    if p.haslayer(IP):
+        header_bytes += p[IP].ihl * 4
+    # TCP header
+    if p.haslayer(TCP):
+        header_bytes += p[TCP].dataofs * 4
+    # UDP header
+    elif p.haslayer(UDP):
+        header_bytes += 8
+data_bytes = total_bytes - header_bytes
+print("\n===== Protocol Statistics =====")
+print("Total number of packets :", total_packets)
+print("Total size (bytes)      :", total_bytes)
+print("Header size (bytes)     :", header_bytes)
+print("Data size (bytes)       :", data_bytes)
