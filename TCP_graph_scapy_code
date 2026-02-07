@@ -1,0 +1,21 @@
+from scapy.all import *
+import matplotlib.pyplot as plt
+from collections import defaultdict
+pkts = rdpcap("graph.pcapng")
+start = pkts[0].time
+tcp_count = defaultdict(int
+# Count TCP packets per second
+for p in pkts:
+    if p.haslayer(TCP):
+        sec = int(p.time - start)
+        tcp_count[sec] += 1
+x = sorted(tcp_count.keys())
+y = [tcp_count[i] for i in x]
+plt.figure()
+plt.plot(x, y)
+plt.xlabel("Time (seconds)")
+plt.ylabel("Packets/sec")
+plt.title("TCP Traffic")
+plt.grid()
+plt.savefig("tcp_graph.png")
+plt.show()
